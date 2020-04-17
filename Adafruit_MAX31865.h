@@ -46,10 +46,16 @@
 #define RTD_A 3.9083e-3
 #define RTD_B -5.775e-7
 
+#ifdef ARDUINO
 #if (ARDUINO >= 100)
 #include "Arduino.h"
 #else
 #include "WProgram.h"
+#endif
+#endif
+
+#ifdef TARGET_LPC1768
+#include <Arduino.h>
 #endif
 
 typedef enum max31865_numwires {
@@ -61,9 +67,9 @@ typedef enum max31865_numwires {
 /*! Interface class for the MAX31865 RTD Sensor reader */
 class Adafruit_MAX31865 {
 public:
-  Adafruit_MAX31865(int8_t spi_cs, int8_t spi_mosi, int8_t spi_miso,
-                    int8_t spi_clk);
-  Adafruit_MAX31865(int8_t spi_cs);
+  Adafruit_MAX31865(int16_t spi_cs, int16_t spi_mosi,
+                    int16_t spi_miso, int16_t spi_clk);
+  Adafruit_MAX31865(int16_t spi_cs);
 
   bool begin(max31865_numwires_t x = MAX31865_2WIRE);
 
@@ -78,7 +84,7 @@ public:
   float temperature(float RTDnominal, float refResistor);
 
 private:
-  int8_t _sclk, _miso, _mosi, _cs;
+  int16_t _sclk, _miso, _mosi, _cs;
 
   void readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n);
 

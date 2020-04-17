@@ -24,8 +24,9 @@
 #include <SPI.h>
 #include <stdlib.h>
 
-static SPISettings max31865_spisettings =
-    SPISettings(500000, MSBFIRST, SPI_MODE1);
+// LPC1768 doesn't like SPI_MODE1, we also adjust the bus speed to match other spi devices on FLSUN Cube Printer
+//static SPISettings max31865_spisettings = SPISettings(500000, MSBFIRST, 0x04); // SPI_MODE1 = 0x04
+static SPISettings max31865_spisettings = SPISettings(84000000 / pow(2, 1 + 4), MSBFIRST, SPI_MODE3);
 
 /**************************************************************************/
 /*!
@@ -37,8 +38,8 @@ static SPISettings max31865_spisettings =
 */
 /**************************************************************************/
 //
-Adafruit_MAX31865::Adafruit_MAX31865(int8_t spi_cs, int8_t spi_mosi,
-                                     int8_t spi_miso, int8_t spi_clk) {
+Adafruit_MAX31865::Adafruit_MAX31865(int16_t spi_cs, int16_t spi_mosi, 
+                                     int16_t spi_miso, int16_t spi_clk) {
   _sclk = spi_clk;
   _cs = spi_cs;
   _miso = spi_miso;
@@ -51,7 +52,7 @@ Adafruit_MAX31865::Adafruit_MAX31865(int8_t spi_cs, int8_t spi_mosi,
     @param spi_cs the SPI CS pin to use along with the default SPI device
 */
 /**************************************************************************/
-Adafruit_MAX31865::Adafruit_MAX31865(int8_t spi_cs) {
+Adafruit_MAX31865::Adafruit_MAX31865(int16_t spi_cs) {
   _cs = spi_cs;
   _sclk = _miso = _mosi = -1;
 }
@@ -179,6 +180,7 @@ void Adafruit_MAX31865::setWires(max31865_numwires_t wires) {
 */
 /**************************************************************************/
 float Adafruit_MAX31865::temperature(float RTDnominal, float refResistor) {
+    // http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
   float Z1, Z2, Z3, Z4, Rt, temp;
 
   Rt = readRTD();
